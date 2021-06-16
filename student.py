@@ -7,10 +7,14 @@ class Student :
         self.name = name
         self.courses =  {}
         self.tests = {}
+        self.totalAverage = 0
 
     def addCourse(self, id, name, teacher  ):
         self.courses[id] = {"id": id, "name": name, "teacher": teacher}
 
+    def calculateCourseAverage(self):
+        # for every course, sum weight*mark and divide by len(tests)
+        pass
     def addTest(self, test_id, mark):
         self.tests[test_id] = mark 
 
@@ -30,6 +34,9 @@ class Course():
     def addTests(self, id, weight):
         self.tests[id] = weight
 
+    def verifyWeights(self):
+        # for every course's weights, make sure add up to 100
+        pass
 
     def __str__(self):
         return json.dumps(self.__dict__)
