@@ -17,12 +17,7 @@ class Student :
     def __str__(self):
         return json.dumps(self.__dict__)
 
-class TestScore:
-    def __init__(self, test_id, student_id, mark) -> None:
-        self.student_id = { test_id: mark }
-   
-    def __str__(self):
-        return json.dumps(self.__dict__)
+
 
 
 class Course():
