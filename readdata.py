@@ -19,15 +19,31 @@ def mapCoursesEntities(coursesFile, testsFile):
         for row in csv.DictReader(csvFile):
             course_id = int(row["course_id"])
             coursesById[course_id].addTests(row['id'], row['weight'])
-
     return coursesById
 
-def r():
+def splitMarks(marksFile, studentsEntities):
+    with open(marksFile) as csvFile:
+        for row in csv.DictReader(csvFile):
+           studentsEntities[int(row["student_id"])].addTest(row["test_id"], row["mark"]) 
+
+def main():
     studentEntitiesByID = mapStudentEntities("students.csv")
     coursesById = mapCoursesEntities("courses.csv", "tests.csv")
+    # populate students with courses
+    splitMarks("marks.csv", studentEntitiesByID)
+    for _, student in studentEntitiesByID.items():
+        for _, course in coursesById.items():
+            overlap = course.tests.keys().intersection(student.tests.keys())
 
 
-r()
+
+
+        
+
+
+
+
+main()
 
 
 

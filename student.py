@@ -6,9 +6,13 @@ class Student :
         self.id = id
         self.name = name
         self.courses =  {}
+        self.tests = {}
 
     def addCourse(self, id, name, teacher  ):
         self.courses[id] = {"id": id, "name": name, "teacher": teacher}
+
+    def addTest(self, test_id, mark):
+        self.tests[test_id] = mark 
 
     def __str__(self):
         return json.dumps(self.__dict__)
