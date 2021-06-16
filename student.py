@@ -33,6 +33,9 @@ class Course():
     
     def addTests(self, id, weight):
         self.tests[id] = weight
+    
+    def indexByTests(self):
+        return { frozenset(self.tests) : self}
 
     def verifyWeights(self):
         # for every course's weights, make sure add up to 100

@@ -2,6 +2,7 @@ import os
 import sys
 import csv
 import json
+from typing import Iterable
 from student import Student,  Course
 
 def mapStudentEntities(fileName):
@@ -26,15 +27,21 @@ def assignMarksToStudents(marksFile, studentsEntities):
         for row in csv.DictReader(csvFile):
            studentsEntities[int(row["student_id"])].addTest(row["test_id"], row["mark"]) 
 
-def indexByKey(data, key):
-    return { record[key] : record for record in data}
+def indexByTestSet(data):
+    return { frozenset(record.tests) : record for record in data }
 
 def main():
     studentEntitiesByID = mapStudentEntities("students.csv")
     coursesById = mapCoursesEntities("courses.csv", "tests.csv")
     assignMarksToStudents("marks.csv", studentEntitiesByID)
-    for _, student in studentEntitiesByID.items():
-        for _, course in coursesById.items():
+    # better to index courses by the set of tests (use frozen set)
+    #coursesByTest = { frozenset(record.tests) : record for record in coursesById.values() }
+    coursesByTest = indexByTestSet(coursesById.values())
+    studentsByTest = indexByTestSet(studentEntitiesByID.values())
+    print(coursesByTest)
+    print(studentsByTest)
+    for student in studentEntitiesByID.values():
+        for course in coursesById.values():
             if any(set(course.tests.keys()).intersection(set(student.tests.keys()))):
                 student.addCourse(course.id, course.name, course.teacher)
 
