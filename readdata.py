@@ -34,18 +34,15 @@ def main():
     studentEntitiesByID = mapStudentEntities("students.csv")
     coursesById = mapCoursesEntities("courses.csv", "tests.csv")
     assignMarksToStudents("marks.csv", studentEntitiesByID)
-    # better to index courses by the set of tests (use frozen set)
-    #coursesByTest = { frozenset(record.tests) : record for record in coursesById.values() }
     coursesByTest = indexByTestSet(coursesById.values())
     studentsByTest = indexByTestSet(studentEntitiesByID.values())
-    print(coursesByTest)
-    print(studentsByTest)
-    for student in studentEntitiesByID.values():
-        for course in coursesById.values():
-            if any(set(course.tests.keys()).intersection(set(student.tests.keys()))):
-                student.addCourse(course.id, course.name, course.teacher)
+    for student_tests, student in studentsByTest.items():
+        for course_tests, course in coursesByTest.items():
+            if  student_tests.isdisjoint(course_tests):
+                continue
+            student.addCourse(course)
 
-    #for _,v in studentEntitiesByID.items(): print(v)
+    for _,v in studentEntitiesByID.items(): print(v)
         
     for student in studentEntitiesByID.values():
         student.calculateCourseAverage()

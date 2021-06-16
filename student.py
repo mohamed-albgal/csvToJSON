@@ -9,8 +9,9 @@ class Student :
         self.tests = {}
         self.totalAverage = 0
 
-    def addCourse(self, id, name, teacher  ):
-        self.courses[id] = {"id": id, "name": name, "teacher": teacher}
+    def addCourse(self, course ):
+        #self.courses[id] = {"id": id, "name": name, "teacher": teacher}
+        self.courses[course.id] = course
 
     def calculateCourseAverage(self):
         # for every course, sum weight*mark and divide by len(tests)
@@ -19,7 +20,11 @@ class Student :
         self.tests[test_id] = mark 
 
     def __str__(self):
-        return json.dumps(self.__dict__)
+        for k,v in self.courses.items():
+            print(k)
+            print(v)
+        return "YUP"
+        #return json.dumps(self.__dict__)
 
 
 
