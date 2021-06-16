@@ -30,27 +30,34 @@ def assignMarksToStudents(marksFile, studentsEntities):
 def indexByTestSet(data):
     return { frozenset(record.tests) : record for record in data }
 
-def main():
-    studentEntitiesByID = mapStudentEntities("students.csv")
-    coursesById = mapCoursesEntities("courses.csv", "tests.csv")
-    assignMarksToStudents("marks.csv", studentEntitiesByID)
-    coursesByTest = indexByTestSet(coursesById.values())
-    studentsByTest = indexByTestSet(studentEntitiesByID.values())
-    for student_tests, student in studentsByTest.items():
-        for course_tests, course in coursesByTest.items():
-            if  student_tests.isdisjoint(course_tests):
-                continue
-            student.addCourse(course)
 
-    for _,v in studentEntitiesByID.items(): print(v)
-        
-    for student in studentEntitiesByID.values():
-        student.calculateCourseAverage()
+def outputToJson(students, file):
+    with open(file,'w') as jsonfile:
+        json.dumps( str(s) for s in students, jsonfile)
+def main():
+    coursesById = mapCoursesEntities("courses.csv", "tests.csv")
     try:
         for course in coursesById.values():
             course.verifyWeights()
     except Exception as e:
         print(e)
         return json.dumps({ "error" : "All course weights dont' add up to 100"})
+
+    studentEntitiesByID = mapStudentEntities("students.csv")
+    assignMarksToStudents("marks.csv", studentEntitiesByID)
+    coursesByTest = indexByTestSet(coursesById.values())
+    studentsByTest = indexByTestSet(studentEntitiesByID.values())
+    for student_tests, student in studentsByTest.items():
+        for course_tests, course in coursesByTest.items():
+            if not student_tests.isdisjoint(course_tests):
+                student.addCourse(course)
+
+    #for _,v in studentEntitiesByID.items(): print(v)
+        
+    for student in studentEntitiesByID.values():
+        student.calculateCourseAverage()
+
+    outputToJson(studentEntitiesByID, outputFile)
+    
 main()
 
