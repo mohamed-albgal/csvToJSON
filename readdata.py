@@ -2,13 +2,11 @@ import os
 import sys
 import csv
 import json
-from typing import Iterable
 from student import Student,  Course
 
 def mapStudentEntities(fileName):
     with open(fileName) as csvFile:
         return { int(row['id']) : Student(**row) for row in csv.DictReader(csvFile)}
-
 
 def mapCoursesEntities(coursesFile, testsFile):
     coursesById = None
@@ -31,33 +29,59 @@ def indexByTestSet(data):
     return { frozenset(record.tests) : record for record in data }
 
 
-def outputToJson(students, file):
-    with open(file,'w') as jsonfile:
-        json.dumps( str(s) for s in students, jsonfile)
-def main():
-    coursesById = mapCoursesEntities("courses.csv", "tests.csv")
-    try:
-        for course in coursesById.values():
-            course.verifyWeights()
-    except Exception as e:
-        print(e)
-        return json.dumps({ "error" : "All course weights dont' add up to 100"})
+def outputToJson(data, file):
+    pass
+    # with open(file,'w') as jsonfile:
+    #     json.dumps( str(s) for s in data, jsonfile)
 
-    studentEntitiesByID = mapStudentEntities("students.csv")
-    assignMarksToStudents("marks.csv", studentEntitiesByID)
-    coursesByTest = indexByTestSet(coursesById.values())
-    studentsByTest = indexByTestSet(studentEntitiesByID.values())
-    for student_tests, student in studentsByTest.items():
-        for course_tests, course in coursesByTest.items():
+
+def matchCourseToStudent(studentsByTests, coursesByTests):
+    for student_tests, student in studentsByTests.items():
+        for course_tests, course in coursesByTests.items():
             if not student_tests.isdisjoint(course_tests):
-                student.addCourse(course)
+                student.addCourse(course)       
 
-    #for _,v in studentEntitiesByID.items(): print(v)
-        
-    for student in studentEntitiesByID.values():
+def verifyEachCourseWeights(coursesById):
+    for course in coursesById.values():
+        if not course.verifyWeights():
+            raise ValueError("Invalid course weights")
+
+def calculateEachStudentAverages(studentsById):
+    for student in studentsById:
         student.calculateCourseAverage()
 
-    outputToJson(studentEntitiesByID, outputFile)
+def getJsonForEachStudent(studentsById):
+        data = { str(s) for s in studentsById.values() }
+        return data
+
+def main():
+    try:
+        coursesById = mapCoursesEntities("courses.csv", "tests.csv")
+        verifyEachCourseWeights(coursesById)
+        studentsById = mapStudentEntities("students.csv")
+        assignMarksToStudents("marks.csv", studentsById)
+        coursesIndexedByTests = indexByTestSet(coursesById.values())
+        studentsIndexedByTests = indexByTestSet(studentsById.values())
+        matchCourseToStudent(studentsIndexedByTests,coursesIndexedByTests)
+        calculateEachStudentAverages(studentsById.values())
+        # data = getJsonForEachStudent(studentsById)
+        for s, val in studentsById.items():
+            print(s)
+            print(val)
+
+    except ValueError as err:
+        print(err.with_traceback)
+        print(err)
+        data = { "error": err.message}
+    except Exception as err:
+        print(err.with_traceback)
+        print(err)
+        print("Something else happened")
+    finally: 
+        #outputToJson(data,"output.json")
+        print("Fin")
+
+    
     
 main()
 
