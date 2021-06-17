@@ -38,7 +38,9 @@ def outputToJson(data, file):
 def matchCourseToStudent(studentsByTests, coursesByTests):
     for student_tests, student in studentsByTests.items():
         for course_tests, course in coursesByTests.items():
+            print("for student id and course id: ",student.id, course.id)
             if not student_tests.isdisjoint(course_tests):
+                print("Got a match for the above")
                 student.addCourse(course)       
 
 def verifyEachCourseWeights(coursesById):
